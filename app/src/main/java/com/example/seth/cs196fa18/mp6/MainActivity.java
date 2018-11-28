@@ -12,4 +12,5 @@ public class MainActivity extends AppCompatActivity {
     }
     // commit1
     // newcommit
+    // branch-only commit
 }
