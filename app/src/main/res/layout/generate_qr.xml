@@ -16,13 +16,13 @@
         android:layout_marginRight="8dp"
         android:layout_marginBottom="48dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/button3"
+        app:layout_constraintBottom_toTopOf="@+id/createQrButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.538"
         app:layout_constraintStart_toStartOf="parent">
 
         <EditText
-            android:id="@+id/editText"
+            android:id="@+id/editName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -30,7 +30,7 @@
             android:inputType="textPersonName" />
 
         <EditText
-            android:id="@+id/editText6"
+            android:id="@+id/editDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -38,7 +38,7 @@
             android:inputType="datetime|date" />
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/optionalFieldsInfoText"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:paddingTop="10dp"
@@ -51,7 +51,7 @@
             android:orientation="horizontal">
 
             <EditText
-                android:id="@+id/editText12"
+                android:id="@+id/editStartTime"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -60,7 +60,7 @@
                 android:inputType="time" />
 
             <ToggleButton
-                android:id="@+id/toggleButton11"
+                android:id="@+id/toggleStartAmPm"
                 android:layout_width="20dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -75,7 +75,7 @@
             android:orientation="horizontal">
 
             <EditText
-                android:id="@+id/editText13"
+                android:id="@+id/editEndTime"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -84,7 +84,7 @@
                 android:inputType="time" />
 
             <ToggleButton
-                android:id="@+id/toggleButton12"
+                android:id="@+id/toggleEndAmPm"
                 android:layout_width="20dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -94,7 +94,7 @@
         </LinearLayout>
 
         <EditText
-            android:id="@+id/editText14"
+            android:id="@+id/editDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -121,7 +121,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/createQrButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
