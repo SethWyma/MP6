@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -29,12 +30,15 @@ public class DisplayQR extends AppCompatActivity {
                 qrDrawable = Drawable.createFromStream(qrCodeStream, "src name");
             } catch(Exception e) {
                 e.printStackTrace();
-                Log.d("INTERNET ERROR", "Didn't get image.");
+                statusText.setText("Could not get image.");
             }
             return qrDrawable;
         }
 
         protected void onPostExecute(Drawable result) {
+            if (result != null) {
+                statusText.setVisibility(View.GONE);
+            }
             qrCodeDrawable = result;
             qrCode.setImageDrawable(qrCodeDrawable);
 
