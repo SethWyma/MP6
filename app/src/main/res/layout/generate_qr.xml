@@ -6,37 +6,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/infoText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="340dp"
+        android:layout_height="377dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="Enter event information. Name and date are required"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.512"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="355dp"
-        android:layout_height="281dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="72dp"
+        android:layout_marginBottom="16dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/createQrButton"
+        app:layout_constraintBottom_toTopOf="@+id/badInputMessage"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.538"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintHorizontal_bias="0.615"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <EditText
             android:id="@+id/editName"
@@ -44,31 +29,23 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Event Name"
-            android:inputType="textPersonName" />
-
-        <EditText
-            android:id="@+id/editDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Date (mm/dd)"
-            android:inputType="date" />
+            android:inputType="textPersonName"
+            android:textSize="24sp" />
 
         <TextView
-            android:id="@+id/optionalFieldsInfoText"
+            android:id="@+id/dateInfoText"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:paddingTop="10dp"
-            android:text="Optional Fields"
-            android:textSize="20sp" />
+            android:layout_height="41dp"
+            android:gravity="bottom"
+            android:text="Enter date (mm-dd-yy)" />
 
         <EditText
-            android:id="@+id/editDescription"
+            android:id="@+id/editStartDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Description"
-            android:inputType="text" />
+            android:hint="Date (mm-dd-yy)"
+            android:inputType="date" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -77,7 +54,7 @@
 
             <EditText
                 android:id="@+id/editStartTime"
-                android:layout_width="100dp"
+                android:layout_width="110dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
@@ -86,8 +63,9 @@
 
             <ToggleButton
                 android:id="@+id/toggleStartAmPm"
-                android:layout_width="20dp"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="180dp"
                 android:layout_weight="1"
                 android:text="ToggleButton"
                 android:textOff="AM"
@@ -101,7 +79,7 @@
 
             <EditText
                 android:id="@+id/editEndTime"
-                android:layout_width="100dp"
+                android:layout_width="110dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
@@ -110,13 +88,45 @@
 
             <ToggleButton
                 android:id="@+id/toggleEndAmPm"
-                android:layout_width="20dp"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="ToggleButton"
                 android:textOff="AM"
                 android:textOn="PM" />
+
+            <CheckBox
+                android:id="@+id/endsDifferentDay"
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="false"
+                android:text="Different end date?" />
         </LinearLayout>
+
+        <EditText
+            android:id="@+id/editEndDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="End Date (mm-dd-yy)"
+            android:inputType="date" />
+
+        <EditText
+            android:id="@+id/editLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Location (optional)"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/editDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Description (optional)"
+            android:inputType="text" />
 
     </LinearLayout>
 
@@ -128,10 +138,25 @@
         android:layout_marginLeft="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="16dp"
         android:text="Create QR Code"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/badInputMessage"
+        android:layout_width="285dp"
+        android:layout_height="84dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:text="Input issues:"
+        app:layout_constraintBottom_toTopOf="@+id/createQrButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.506"
         app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
