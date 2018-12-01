@@ -84,27 +84,34 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent cameraIntent) {
         if (requestCode == REQUEST_CAPTURE && resultCode == RESULT_OK) {
+            /**
             Bitmap qrBmp = null;
             try {
                 qrBmp = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
             } catch(IOException e) {
                 e.printStackTrace();
             }
-            qrImage.setImageBitmap(qrBmp);
-            googleQrDecode(qrBmp);
+             */
+            qrImage.setImageURI(imageUri);
+            googleQrDecode();
 
         }
     }
 
-    private void googleQrDecode(Bitmap toDecode) {
+    private void googleQrDecode() {
 
         FirebaseVisionBarcodeDetectorOptions options =
                 new FirebaseVisionBarcodeDetectorOptions.Builder()
                         .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_QR_CODE)
                         .build();
-        FirebaseVisionImage fbv = FirebaseVisionImage.fromBitmap(toDecode);
+        FirebaseVisionImage image = null;
+        try {
+            image = FirebaseVisionImage.fromFilePath(context, imageUri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance().getVisionBarcodeDetector(options);
-        Task<List<FirebaseVisionBarcode>> scannedCode = detector.detectInImage(fbv)
+        Task<List<FirebaseVisionBarcode>> scannedCode = detector.detectInImage(image)
                 .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionBarcode>>() {
                     @Override
                     public void onSuccess(List<FirebaseVisionBarcode> firebaseVisionBarcodes) {
