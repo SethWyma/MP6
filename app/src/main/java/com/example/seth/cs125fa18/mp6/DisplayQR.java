@@ -1,12 +1,11 @@
 package com.example.seth.cs125fa18.mp6;
 
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -20,6 +19,7 @@ public class DisplayQR extends AppCompatActivity {
     TextView statusText;
     Drawable qrCodeDrawable;
     ImageView qrCode;
+    Button returnToMain;
 
     private class getQrData extends AsyncTask<String, Void, Drawable> {
         protected Drawable doInBackground(String... urls) {
@@ -48,6 +48,7 @@ public class DisplayQR extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(R.style.NoActionBar);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -57,17 +58,16 @@ public class DisplayQR extends AppCompatActivity {
         setContentView(R.layout.activity_display_qr);
         statusText = (TextView) findViewById(R.id.statusText);
         qrCode = (ImageView) findViewById(R.id.qrCode);
+        returnToMain = (Button) findViewById(R.id.returnToMain);
+
         String qrApiUrl = "https://chart.googleapis.com/chart?cht=qr&chl=" + qrData + "&chs=500x500&chld=L|0";
-        /**
-        try {
-            InputStream qrCodeStream = (InputStream) new URL(qrApiUrl).getContent();
-            Drawable qrDrawable = Drawable.createFromStream(qrCodeStream, "name?");
-            qrCode.setImageDrawable(qrDrawable);
-        } catch(Exception e) {
-            e.printStackTrace();
-            Log.d("INTERNET ERROR", "Didn't get image.");
-        }
-         */
         new getQrData().execute(qrApiUrl);
+
+        returnToMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 }

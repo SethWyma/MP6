@@ -1,5 +1,6 @@
 package com.example.seth.cs125fa18.mp6;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -15,7 +16,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
+import java.util.Locale;
 
 public class GenerateQR extends AppCompatActivity {
 
@@ -25,6 +26,7 @@ public class GenerateQR extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(R.style.NoActionBar);
         setContentView(R.layout.generate_qr);
 
         final EditText editName = findViewById(R.id.editName);
@@ -40,12 +42,13 @@ public class GenerateQR extends AppCompatActivity {
         badInputMessage = (TextView) findViewById(R.id.badInputMessage);
         Button createQr = findViewById(R.id.createQrButton);
 
+        badInputMessage.setVisibility(View.INVISIBLE);
         editEndDate.setVisibility(View.GONE);
 
         // Set date input box to current date.
         Date currentDate = Calendar.getInstance().getTime();
         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
-        String formattedDate = sdf.format(currentDate);
+        final String formattedDate = sdf.format(currentDate);
         editStartDate.setText(formattedDate);
         editEndDate.setText(formattedDate);
 
@@ -71,16 +74,18 @@ public class GenerateQR extends AppCompatActivity {
 
                 String badInputText = "";
 
-                if (editName.getText().toString().length() >= maxLength) {
-                    badInputText += "\nName of Event is too long.";
+                if (editName.getText().toString().length() > maxLength) {
+                    badInputText += "\n Name of Event is too long.";
                 }
                 if (editName.getText().toString().length() == 0) {
-                    badInputText +="\nThere is no event name.";
+                    badInputText +="\n There is no event name.";
                 }
-                if (editDescription.getText().toString().length() >= maxLength) {
-                    badInputText += "\nDescription is too long.";
+                if (editDescription.getText().toString().length() > maxLength) {
+                    badInputText += "\n Description is too long.";
                 }
-
+                if (editLocation.getText().toString().length() > maxLength) {
+                    badInputText += "\n Location name is too long.";
+                }
 
                 String unformattedStartDate = editStartDate.getText().toString()
                         + " " + editStartTime.getText().toString()
@@ -100,28 +105,46 @@ public class GenerateQR extends AppCompatActivity {
                 String endDateTime = attemptToParse(unformattedEndDate);
 
                 if (startDateTime == "invalid") {
-                    badInputText += "\nStart date or start time is invalid.";
+                    badInputText += "\n Start date or start time is invalid.";
                 }
                 if (endDateTime == "invalid") {
-                    badInputText += "\nEnd date or end time is invalid.";
+                    badInputText += "\n End date or end time is invalid.";
+                }
+                if (startDateTime != "invalid" && endDateTime != "invalid") {
+                    SimpleDateFormat formattedToDatesdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+                    try {
+                        Date start = formattedToDatesdf.parse(startDateTime);
+                        Date end = formattedToDatesdf.parse(endDateTime);
+                        if (start.after(end)) {
+                            badInputText += "\n End of event is after the start!";
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
                 }
 
+                if (badInputText.length() > 0) {
+                    badInputMessage.setText("Issues with input:" + badInputText);
+                    badInputMessage.setVisibility(View.VISIBLE);
+                    return;
+                } else {
+                    String[] rawData = new String[]{
+                            editName.getText().toString(),
+                            startDateTime,
+                            endDateTime,
+                            editLocation.getText().toString(),
+                            editDescription.getText().toString()
+                    };
 
-                String[] rawData = new String[] {
-                        editName.getText().toString(),
-                        startDateTime,
-                        endDateTime,
-                        editLocation.getText().toString(),
-                        editDescription.getText().toString()
-                };
-
-                for (String item : rawData) {
-                    qrData += item + ", ";
+                    for (String item : rawData) {
+                        qrData += item + ", ";
+                    }
+                    qrData = qrData.substring(4, qrData.length() - 2);
+                    Intent startDisplayQr = new Intent(GenerateQR.this, DisplayQR.class);
+                    startDisplayQr.putExtra("eventDataKey", qrData);
+                    startActivity(startDisplayQr);
+                    finish();
                 }
-                qrData = qrData.substring(4, qrData.length() - 2);
-                Intent startDisplayQr = new Intent(GenerateQR.this, DisplayQR.class);
-                startDisplayQr.putExtra("eventDataKey", qrData);
-                startActivity(startDisplayQr);
             }
         });
     }
@@ -129,7 +152,8 @@ public class GenerateQR extends AppCompatActivity {
     private String attemptToParse(String date) {
         try {
             StringBuffer sb = new StringBuffer(32);
-            SimpleDateFormat dfHelper = new SimpleDateFormat("MM-dd-yyyy HH:mm aa");
+            // "hh:mm" shouldn't be correct, but it would always throw an error at PM times when I used "HH:mm".
+            SimpleDateFormat dfHelper = new SimpleDateFormat("MM-dd-yyyy hh:mm aa", Locale.ENGLISH);
             dfHelper.setLenient(false);
             Date resultDate = dfHelper.parse(date);
             dfHelper.applyPattern("yyyy-MM-dd'T'HH:mm:ssXXX");

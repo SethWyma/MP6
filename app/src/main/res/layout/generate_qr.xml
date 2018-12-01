@@ -9,19 +9,18 @@
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="340dp"
-        android:layout_height="377dp"
+        android:layout_height="379dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="16dp"
         android:orientation="vertical"
+        android:paddingTop="28dp"
         app:layout_constraintBottom_toTopOf="@+id/badInputMessage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.615"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintStart_toStartOf="parent">
 
         <EditText
             android:id="@+id/editName"
@@ -35,9 +34,9 @@
         <TextView
             android:id="@+id/dateInfoText"
             android:layout_width="match_parent"
-            android:layout_height="41dp"
+            android:layout_height="35dp"
             android:gravity="bottom"
-            android:text="Enter date (mm-dd-yy)" />
+            android:text="Enter date (mm-dd-yyyy)" />
 
         <EditText
             android:id="@+id/editStartDate"
@@ -109,7 +108,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="End Date (mm-dd-yy)"
+            android:hint="End Date (mm-dd-yyyy)"
             android:inputType="date" />
 
         <EditText
@@ -138,7 +137,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="24dp"
         android:text="Create QR Code"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -148,12 +147,16 @@
     <TextView
         android:id="@+id/badInputMessage"
         android:layout_width="285dp"
-        android:layout_height="84dp"
+        android:layout_height="77dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:text="Input issues:"
+        android:layout_marginBottom="4dp"
+        android:text="Issues with input:"
+        android:textColor="@color/colorAccent"
+        android:textSize="14sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/createQrButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.506"
