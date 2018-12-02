@@ -34,6 +34,7 @@ import com.google.zxing.integration.android.IntentResult;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -42,10 +43,10 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     static int REQUEST_CAPTURE = 1;
-    ImageView qrImage;
+    //ImageView qrImage;
     Context context;
     Uri imageUri;
-    File imageFile;
+    //File imageFile;
     TextView eventInfo;
     IntentIntegrator qrScanner;
 
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button generateQR = findViewById(R.id.generateQR);
         Button scanQR = findViewById(R.id.scanQR);
-        qrImage = findViewById(R.id.qrImage);
+        // qrImage = findViewById(R.id.qrImage);
         context = this.getApplicationContext();
         eventInfo = findViewById(R.id.eventInfo);
 
@@ -73,7 +74,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 qrScanner.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-                        .setOrientationLocked(false);
+                        .setOrientationLocked(false)
+                        .setBeepEnabled(false);
                 qrScanner.initiateScan();
             }
         });
@@ -122,10 +124,8 @@ public class MainActivity extends AppCompatActivity {
                     scanSuccessVibration.vibrate(750);
                 }
                 String contents = result.getContents();
-
-                // Parse my very special custom event info format (yay)
-                String[] qrArrayData = contents.split(",");
-                eventInfo.setText(contents);
+                String[] qrArrayData = contents.split(Character.toString((char) 31));
+                qrDataDisplayBuilder(qrArrayData);
             } else {
                 Toast.makeText(this, "Scan canceled", Toast.LENGTH_LONG);
             }
@@ -164,5 +164,49 @@ public class MainActivity extends AppCompatActivity {
                         eventInfo.setText("No code found.");
                     }
                 });
+    }
+
+    private void qrDataDisplayBuilder(String[] qrArrayData) {
+        /**
+         * Name of event
+         * Day of wk, MMMMM dd, yyyy
+         * Starts at: hh:mm
+         * Ends at: hh:mm
+         * (If different day) On Day of wk, MMMMM, dd, yyyy
+         * At: [location]
+         * Description: [Description]
+         */
+
+        eventInfo.append(qrArrayData[0] + "\n");
+
+        SimpleDateFormat isoParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.ENGLISH);
+        SimpleDateFormat timeFormatter = new SimpleDateFormat("h:mm a");
+        Date startDate;
+        Date endDate;
+        try {
+            startDate = isoParser.parse(qrArrayData[1]);
+            endDate = isoParser.parse(qrArrayData[2]);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        // Clunky way to check if start and end dates are same.
+        if (startDate.toString().substring(0, 10).equals(endDate.toString().substring(0, 10))) {
+            eventInfo.append(new SimpleDateFormat("EEEE, MMMM d, yyyy").format(startDate) + "\n");
+            eventInfo.append(timeFormatter.format(startDate) + " to " + timeFormatter.format(endDate) + "\n");
+        } else {
+            eventInfo.append("From: " + new SimpleDateFormat("EEEE, MMMM d, yyyy").format(startDate)
+                    + " at " + timeFormatter.format(startDate) + "\n");
+            eventInfo.append("To: " + new SimpleDateFormat("EEEE, MMMM d, yyyy").format(endDate)
+                    + " at " + timeFormatter.format(endDate) + "\n");
+        }
+
+        if (qrArrayData[3].length() > 0) {
+            eventInfo.append("Location: " + qrArrayData[3] + "\n");
+        }
+        if (qrArrayData[4].length() > 0) {
+            eventInfo.append("Description: " + qrArrayData[4] + "\n");
+        }
     }
 }

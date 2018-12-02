@@ -138,12 +138,13 @@ public class GenerateQR extends AppCompatActivity {
                             editDescription.getText().toString()
                     };
 
+                    char unit_separator = (char) 31;
                     for (String item : rawData) {
-                        qrData += item + ", ";
+                        qrData += item + unit_separator;
                     }
                     qrData = qrData.substring(4, qrData.length() - 2);
 
-                    // Sample data: "Fun Party!, 2018-12-07T17:30:00-06:00, 2018-12-07T20:00:00-06:00, 123 Maple Ave., Enjoy time w/ friends at my house.
+                    // Sample data: "Fun Party!&#@42018-12-07T17:30:00-06:00&#@42018-12-07T20:00:00-06:00&#@4123 Maple Ave.&#@4Enjoy time w/ friends at my house."
 
                     Intent startDisplayQr = new Intent(GenerateQR.this, DisplayQR.class);
                     startDisplayQr.putExtra("eventDataKey", qrData);
