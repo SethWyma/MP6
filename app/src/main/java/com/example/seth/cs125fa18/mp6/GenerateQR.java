@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -43,6 +44,7 @@ public class GenerateQR extends AppCompatActivity {
         Button createQr = findViewById(R.id.createQrButton);
 
         badInputMessage.setVisibility(View.INVISIBLE);
+        badInputMessage.setMovementMethod(new ScrollingMovementMethod());
         editEndDate.setVisibility(View.GONE);
 
         // Set date input box to current date.
@@ -140,6 +142,9 @@ public class GenerateQR extends AppCompatActivity {
                         qrData += item + ", ";
                     }
                     qrData = qrData.substring(4, qrData.length() - 2);
+
+                    // Sample data: "Fun Party!, 2018-12-07T17:30:00-06:00, 2018-12-07T20:00:00-06:00, 123 Maple Ave., Enjoy time w/ friends at my house.
+
                     Intent startDisplayQr = new Intent(GenerateQR.this, DisplayQR.class);
                     startDisplayQr.putExtra("eventDataKey", qrData);
                     startActivity(startDisplayQr);
