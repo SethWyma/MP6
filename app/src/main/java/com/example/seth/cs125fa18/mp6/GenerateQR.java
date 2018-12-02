@@ -1,6 +1,5 @@
 package com.example.seth.cs125fa18.mp6;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -40,7 +39,7 @@ public class GenerateQR extends AppCompatActivity {
         final ToggleButton toggleEndAmPm = findViewById(R.id.toggleEndAmPm);
         final EditText editLocation = findViewById(R.id.editLocation);
         final EditText editDescription = findViewById(R.id.editDescription);
-        badInputMessage = (TextView) findViewById(R.id.badInputMessage);
+        badInputMessage = findViewById(R.id.badInputMessage);
         Button createQr = findViewById(R.id.createQrButton);
 
         badInputMessage.setVisibility(View.INVISIBLE);
@@ -140,7 +139,7 @@ public class GenerateQR extends AppCompatActivity {
 
                     char unit_separator = (char) 31;
                     for (String item : rawData) {
-                        qrData += item + unit_separator;
+                        qrData = qrData + item + unit_separator;
                     }
                     qrData = qrData.substring(4, qrData.length() - 2);
 
@@ -163,8 +162,7 @@ public class GenerateQR extends AppCompatActivity {
             dfHelper.setLenient(false);
             Date resultDate = dfHelper.parse(date);
             dfHelper.applyPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
-            String result = dfHelper.format(resultDate, sb, new FieldPosition(0)).toString();
-            return result;
+            return dfHelper.format(resultDate, sb, new FieldPosition(0)).toString();
         } catch (ParseException e) {
             return "invalid";
         }

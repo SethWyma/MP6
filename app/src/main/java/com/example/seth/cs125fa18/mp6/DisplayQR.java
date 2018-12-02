@@ -56,9 +56,9 @@ public class DisplayQR extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_display_qr);
-        statusText = (TextView) findViewById(R.id.statusText);
-        qrCode = (ImageView) findViewById(R.id.qrCode);
-        returnToMain = (Button) findViewById(R.id.returnToMain);
+        statusText = findViewById(R.id.statusText);
+        qrCode = findViewById(R.id.qrCode);
+        returnToMain = findViewById(R.id.returnToMain);
 
         String qrApiUrl = "https://chart.googleapis.com/chart?cht=qr&chl=" + qrData + "&chs=500x500&chld=L|0";
         new getQrData().execute(qrApiUrl);
