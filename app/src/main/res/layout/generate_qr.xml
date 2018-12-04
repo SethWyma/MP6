@@ -51,6 +51,7 @@
             android:id="@+id/dateInfoText"
             android:layout_width="match_parent"
             android:layout_height="35dp"
+            android:background="@drawable/text_background"
             android:gravity="bottom"
             android:text="Enter date (mm-dd-yyyy)" />
 
@@ -173,7 +174,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="4dp"
-        android:background="@drawable/small_red"
+        android:background="@drawable/text_background"
         android:scrollbars="vertical"
         android:text="Issues with input:"
         android:textColor="@color/colorAccent"
