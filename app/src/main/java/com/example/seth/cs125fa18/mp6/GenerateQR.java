@@ -48,16 +48,25 @@ public class GenerateQR extends AppCompatActivity {
 
         // Set date input box to current date.
         Date currentDate = Calendar.getInstance().getTime();
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
+        final SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
+        sdf.setLenient(false);
         final String formattedDate = sdf.format(currentDate);
         editStartDate.setText(formattedDate);
-        editEndDate.setText(formattedDate);
 
         // Hides or reveals editEndDate
         endsDifferentDay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (editEndDate.getVisibility() == View.GONE) {
+                    try {
+                        final Calendar mCalendar = Calendar.getInstance();
+                        Date currentStartDate = sdf.parse(editStartDate.getText().toString());
+                        mCalendar.setTime(currentStartDate);
+                        mCalendar.add(Calendar.DAY_OF_YEAR, 1);
+                        editEndDate.setText(sdf.format(mCalendar.getTime()));
+                    } catch(ParseException e) {
+                        editEndDate.setText(editStartDate.getText());
+                    }
                     editEndDate.setVisibility(View.VISIBLE);
                 } else {
                     editEndDate.setVisibility(View.GONE);
