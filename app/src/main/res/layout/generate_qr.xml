@@ -20,20 +20,32 @@
         android:paddingTop="28dp"
         app:layout_constraintBottom_toTopOf="@+id/badInputMessage"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.615"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.47000003">
 
-        <EditText
-            android:id="@+id/editName"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableRight="?android:attr/actionModeCloseDrawable"
-            android:ems="10"
-            android:hint="Event Name"
-            android:inputType="textPersonName"
-            android:textAppearance="@style/TextAppearance.AppCompat"
-            tools:drawableLeft="?android:attr/actionModeCloseDrawable" />
+            android:layout_height="50dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/returnButton"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/red_button"
+                android:text="RETURN" />
+
+            <EditText
+                android:id="@+id/editName"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Event Name"
+                android:inputType="textPersonName"
+                android:textAppearance="@style/TextAppearance.AppCompat" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/dateInfoText"
@@ -46,6 +58,7 @@
             android:id="@+id/editStartDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/input_bg"
             android:ems="10"
             android:hint="Date (mm-dd-yy)"
             android:inputType="date" />
@@ -137,16 +150,17 @@
         android:id="@+id/createQrButton"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="45dp"
         android:layout_marginStart="4dp"
         android:layout_marginLeft="4dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="20dp"
-        android:background="@drawable/red_button"
+        android:background="@drawable/small_green"
         android:text="Create QR Code"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/badInputMessage" />
 
@@ -159,11 +173,12 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="4dp"
+        android:background="@drawable/small_red"
+        android:scrollbars="vertical"
         android:text="Issues with input:"
         android:textColor="@color/colorAccent"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:scrollbars="vertical"
         app:layout_constraintBottom_toTopOf="@+id/createQrButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.506"

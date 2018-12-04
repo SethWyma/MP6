@@ -23,6 +23,7 @@ public class GenerateQR extends AppCompatActivity {
 
     String qrData;
     TextView badInputMessage;
+    Button returnButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,7 @@ public class GenerateQR extends AppCompatActivity {
         final EditText editDescription = findViewById(R.id.editDescription);
         badInputMessage = (TextView) findViewById(R.id.badInputMessage);
         Button createQr = findViewById(R.id.createQrButton);
+        returnButton = (Button) findViewById(R.id.returnButton);
 
         badInputMessage.setVisibility(View.INVISIBLE);
         badInputMessage.setMovementMethod(new ScrollingMovementMethod());
@@ -63,6 +65,14 @@ public class GenerateQR extends AppCompatActivity {
                 } else {
                     editEndDate.setVisibility(View.GONE);
                 }
+            }
+        });
+
+        // Returns to MainActivity
+        returnButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
 

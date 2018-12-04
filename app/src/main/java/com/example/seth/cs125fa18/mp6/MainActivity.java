@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setTheme(R.style.NoActionBar);
 
         Button generateQR = findViewById(R.id.generateQR);
         Button scanQR = findViewById(R.id.scanQR);
