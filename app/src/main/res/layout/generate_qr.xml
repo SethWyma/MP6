@@ -41,6 +41,7 @@
                 android:id="@+id/editName"
                 android:layout_width="250dp"
                 android:layout_height="wrap_content"
+                android:background="@drawable/text_background"
                 android:ems="10"
                 android:hint="Event Name"
                 android:inputType="textPersonName"
@@ -51,7 +52,6 @@
             android:id="@+id/dateInfoText"
             android:layout_width="match_parent"
             android:layout_height="35dp"
-            android:background="@drawable/text_background"
             android:gravity="bottom"
             android:text="Enter date (mm-dd-yyyy)" />
 
@@ -59,7 +59,6 @@
             android:id="@+id/editStartDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/input_bg"
             android:ems="10"
             android:hint="Date (mm-dd-yy)"
             android:inputType="date" />
