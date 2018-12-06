@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.journeyapps.barcodescanner.CompoundBarcodeView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 qrScanner.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
                         .setOrientationLocked(false)
+                        .setPrompt("Place QR code in viewfinder to scan.")
                         .setBeepEnabled(false);
                 qrScanner.initiateScan();
             }
@@ -61,14 +63,18 @@ public class MainActivity extends AppCompatActivity {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) {
             if (result.getContents() != null) {
+                String contents = result.getContents();
+                String[] qrArrayData = contents.split(Character.toString((char) 31));
+                if (qrArrayData.length < 4) {
+                    eventInfo.setText("This code you scanned is not in the proper format.");
+                    return;
+                }
                 Vibrator scanSuccessVibration = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     scanSuccessVibration.vibrate(VibrationEffect.createOneShot(750, VibrationEffect.DEFAULT_AMPLITUDE));
                 } else {
                     scanSuccessVibration.vibrate(750);
                 }
-                String contents = result.getContents();
-                String[] qrArrayData = contents.split(Character.toString((char) 31));
                 qrDataDisplayBuilder(qrArrayData);
             } else {
                 Toast.makeText(this, "Scan canceled", Toast.LENGTH_LONG).show();
