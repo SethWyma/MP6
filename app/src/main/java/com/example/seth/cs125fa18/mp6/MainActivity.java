@@ -24,18 +24,20 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     Context context;
-    TextView eventInfo;
     IntentIntegrator qrScanner;
+    String[] qrArrayData;
+    String[] friendlyText;
+    final String ERROR_MESSAGE = "The code you scanned is not in the proper format.";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setTheme(R.style.NoActionBar);
 
         Button generateQR = findViewById(R.id.generateQR);
         Button scanQR = findViewById(R.id.scanQR);
         context = this.getApplicationContext();
-        eventInfo = findViewById(R.id.eventInfo);
 
         qrScanner = new IntentIntegrator(this);
 
@@ -64,64 +66,71 @@ public class MainActivity extends AppCompatActivity {
         if (result != null) {
             if (result.getContents() != null) {
                 String contents = result.getContents();
-                String[] qrArrayData = contents.split(Character.toString((char) 31));
-                if (qrArrayData.length < 4) {
-                    eventInfo.setText("This code you scanned is not in the proper format.");
-                    return;
-                }
+                qrArrayData = contents.split(Character.toString((char) 31));
                 Vibrator scanSuccessVibration = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     scanSuccessVibration.vibrate(VibrationEffect.createOneShot(750, VibrationEffect.DEFAULT_AMPLITUDE));
                 } else {
                     scanSuccessVibration.vibrate(750);
                 }
-                qrDataDisplayBuilder(qrArrayData);
+                try {
+                    friendlyText = qrDataDisplayBuilder(qrArrayData);
+                } catch (ArrayIndexOutOfBoundsException | ParseException e) {
+                    friendlyText = null;
+                }
+                if (friendlyText != null && friendlyText.length == 5) {
+                    Intent successfulScan = new Intent(MainActivity.this, SuccessfulScan.class);
+                    successfulScan.putExtra("friendly text", friendlyText);
+                    successfulScan.putExtra("qr data", qrArrayData);
+                    startActivity(successfulScan);
+                } else {
+                    // Invalid QR Code Message
+                    return;
+                }
             } else {
                 Toast.makeText(this, "Scan canceled", Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    private void qrDataDisplayBuilder(String[] qrArrayData) {
+    private String[] qrDataDisplayBuilder(String[] qrArrayData) throws ParseException {
         /**
          * Name of event
          * Day of wk, MMMMM dd, yyyy
          * Starts at: hh:mm
          * Ends at: hh:mm
          * (If different day) On Day of wk, MMMMM, dd, yyyy
-         * At: [location]
-         * Description: [Description]
+         * At [location]
+         * [Description]
          */
-        eventInfo.append(qrArrayData[0] + "\n");
+
+        String[] friendlyTextArray = new String[5];
+        friendlyTextArray[0] = qrArrayData[0];
 
         SimpleDateFormat isoParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.ENGLISH);
         SimpleDateFormat timeFormatter = new SimpleDateFormat("h:mm a");
         Date startDate;
         Date endDate;
-        try {
-            startDate = isoParser.parse(qrArrayData[1]);
-            endDate = isoParser.parse(qrArrayData[2]);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return;
-        }
+        startDate = isoParser.parse(qrArrayData[1]);
+        endDate = isoParser.parse(qrArrayData[2]);
 
         // Clunky way to check if start and end dates are same.
         if (startDate.toString().substring(0, 10).equals(endDate.toString().substring(0, 10))) {
-            eventInfo.append(new SimpleDateFormat("EEEE, MMMM d, yyyy").format(startDate) + "\n");
-            eventInfo.append(timeFormatter.format(startDate) + " to " + timeFormatter.format(endDate) + "\n");
+            friendlyTextArray[1] = (new SimpleDateFormat("EEEE, MMMM d, yyyy").format(startDate));
+            friendlyTextArray[2] = (timeFormatter.format(startDate) + " to " + timeFormatter.format(endDate));
         } else {
-            eventInfo.append("From: " + new SimpleDateFormat("EEEE, MMMM d, yyyy").format(startDate)
-                    + " at " + timeFormatter.format(startDate) + "\n");
-            eventInfo.append("To: " + new SimpleDateFormat("EEEE, MMMM d, yyyy").format(endDate)
-                    + " at " + timeFormatter.format(endDate) + "\n");
+            friendlyTextArray[1] = (new SimpleDateFormat("EEEE, MMMM d, yyyy").format(startDate)
+                    + " at " + timeFormatter.format(startDate));
+            friendlyTextArray[2] = ("to " + new SimpleDateFormat("EEEE, MMMM d, yyyy").format(endDate)
+                    + " at " + timeFormatter.format(endDate));
         }
 
         if (qrArrayData.length > 3) {
-            eventInfo.append("Location: " + qrArrayData[3] + "\n");
+            friendlyTextArray[3] = "At " + qrArrayData[3];
         }
         if (qrArrayData.length > 4) {
-            eventInfo.append("Description: " + qrArrayData[4] + "\n");
+            friendlyTextArray[4] = qrArrayData[4];
         }
+        return friendlyTextArray;
     }
 }
