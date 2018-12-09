@@ -32,6 +32,26 @@ import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.Events;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.model.EventDateTime;
+import com.google.api.services.calendar.model.EventReminder;
+
+
+
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -39,10 +59,21 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Collections;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
 
     static int REQUEST_CAPTURE = 1;
+    private static final String APPLICATION_NAME = "Google Calendar API";
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+    private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR);
+    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
     //ImageView qrImage;
     Context context;
     Uri imageUri;
@@ -126,7 +157,15 @@ public class MainActivity extends AppCompatActivity {
                 }
                 String contents = result.getContents();
                 String[] qrArrayData = contents.split(Character.toString((char) 31));
-                qrDataDisplayBuilder(qrArrayData);
+                try {
+                    qrDataDisplayBuilder(qrArrayData);
+                } catch (IOException e) {
+                    eventInfo.append("there was an IOException");
+                    return;
+                } catch (GeneralSecurityException e) {
+                    eventInfo.append("there was a GeneralSecurityException");
+                    return;
+                }
             } else {
                 Toast.makeText(this, "Scan canceled", Toast.LENGTH_LONG);
             }
@@ -167,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void qrDataDisplayBuilder(String[] qrArrayData) {
+    private void qrDataDisplayBuilder(String[] qrArrayData) throws IOException, GeneralSecurityException {
         /**
          * Name of event
          * Day of wk, MMMMM dd, yyyy
@@ -184,11 +223,16 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat timeFormatter = new SimpleDateFormat("h:mm a");
         Date startDate;
         Date endDate;
+        String startDateString;
+        String endDateString;
         try {
             startDate = isoParser.parse(qrArrayData[1]);
             endDate = isoParser.parse(qrArrayData[2]);
+            startDateString = isoParser.format(startDate);
+            endDateString = isoParser.format(endDate);
         } catch (ParseException e) {
             e.printStackTrace();
+            eventInfo.append("There was an error");
             return;
         }
 
@@ -209,5 +253,53 @@ public class MainActivity extends AppCompatActivity {
         if (qrArrayData[4].length() > 0) {
             eventInfo.append("Description: " + qrArrayData[4] + "\n");
         }
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        Calendar calendar = new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                .setApplicationName(APPLICATION_NAME)
+                .build();
+        Event newEvent = new Event();
+        newEvent.setSummary(qrArrayData[0]);
+        if (qrArrayData[3].length() > 0) {
+            newEvent.setLocation(qrArrayData[3]);
+        }
+        if (qrArrayData[4].length() > 0) {
+            newEvent.setLocation(qrArrayData[4]);
+        }
+        DateTime startDateTime = new DateTime(startDateString);
+        DateTime endDateTime = new DateTime(endDateString);
+
+        TimeZone currentTimeZone = TimeZone.getDefault();
+        String timeZoneAsString = currentTimeZone.getDisplayName();
+        EventDateTime startEventDateTime = new EventDateTime();
+        startEventDateTime.setDateTime(startDateTime);
+        startEventDateTime.setTimeZone(timeZoneAsString);
+        newEvent.setStart(startEventDateTime);
+
+        EventDateTime endEventDateTime = new EventDateTime();
+        endEventDateTime.setDateTime(endDateTime);
+        endEventDateTime.setTimeZone(timeZoneAsString);
+        newEvent.setEnd(endEventDateTime);
+
+        EventReminder[] reminderOverrides = new EventReminder[] {
+                new EventReminder().setMethod("popup").setMinutes(30)
+        };
+        Event.Reminders reminders = new Event.Reminders();
+        reminders.setUseDefault(false);
+        reminders.setOverrides(Arrays.asList(reminderOverrides));
+        newEvent.setReminders(reminders);
+        String id = "primary";
+        newEvent = calendar.events().insert(id, newEvent).execute();
+    }
+
+    private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+        InputStream in = MainActivity.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                .setAccessType("offline")
+                .build();
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+        return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+
     }
 }
