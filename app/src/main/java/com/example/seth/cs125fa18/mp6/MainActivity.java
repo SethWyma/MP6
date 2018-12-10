@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
     //File imageFile;
     TextView eventInfo;
     IntentIntegrator qrScanner;
+    private String[] finalData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
 
         Button generateQR = findViewById(R.id.generateQR);
         Button scanQR = findViewById(R.id.scanQR);
+        Button addEvent = findViewById(R.id.addEvent);
+        Button testButton = findViewById(R.id.testButton);
         // qrImage = findViewById(R.id.qrImage);
         context = this.getApplicationContext();
         eventInfo = findViewById(R.id.eventInfo);
@@ -109,6 +112,44 @@ public class MainActivity extends AppCompatActivity {
                         .setOrientationLocked(false)
                         .setBeepEnabled(false);
                 qrScanner.initiateScan();
+            }
+        });
+
+        testButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finalData = new String[5];
+                finalData[0] = "Event Name";
+                finalData[1] = "2018-12-09T10:00:00+1:00";
+                finalData[2] = "2018-12-09T11:00:00+1:00";
+                if (finalData != null) {
+                    try {
+                        addEventToCalendar();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (GeneralSecurityException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    eventInfo.append("No event has been created yet!");
+                }
+            }
+        });
+
+        addEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (finalData != null) {
+                    try {
+                        addEventToCalendar();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (GeneralSecurityException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    eventInfo.append("No event has been created yet!");
+                }
             }
         });
 
@@ -157,15 +198,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 String contents = result.getContents();
                 String[] qrArrayData = contents.split(Character.toString((char) 31));
-                try {
-                    qrDataDisplayBuilder(qrArrayData);
-                } catch (IOException e) {
-                    eventInfo.append("there was an IOException");
-                    return;
-                } catch (GeneralSecurityException e) {
-                    eventInfo.append("there was a GeneralSecurityException");
-                    return;
-                }
+                qrDataDisplayBuilder(qrArrayData);
             } else {
                 Toast.makeText(this, "Scan canceled", Toast.LENGTH_LONG);
             }
@@ -206,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void qrDataDisplayBuilder(String[] qrArrayData) throws IOException, GeneralSecurityException {
+    private void qrDataDisplayBuilder(String[] qrArrayData) {
         /**
          * Name of event
          * Day of wk, MMMMM dd, yyyy
@@ -218,18 +251,20 @@ public class MainActivity extends AppCompatActivity {
          */
 
         eventInfo.append(qrArrayData[0] + "\n");
-
+        finalData = qrArrayData;
         SimpleDateFormat isoParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.ENGLISH);
         SimpleDateFormat timeFormatter = new SimpleDateFormat("h:mm a");
         Date startDate;
         Date endDate;
-        String startDateString;
+        /*String startDateString;
         String endDateString;
+        */
         try {
             startDate = isoParser.parse(qrArrayData[1]);
             endDate = isoParser.parse(qrArrayData[2]);
-            startDateString = isoParser.format(startDate);
+            /*startDateString = isoParser.format(startDate);
             endDateString = isoParser.format(endDate);
+            */
         } catch (ParseException e) {
             e.printStackTrace();
             eventInfo.append("There was an error");
@@ -253,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
         if (qrArrayData[4].length() > 0) {
             eventInfo.append("Description: " + qrArrayData[4] + "\n");
         }
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        /*final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         Calendar calendar = new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                 .setApplicationName(APPLICATION_NAME)
                 .build();
@@ -289,6 +324,7 @@ public class MainActivity extends AppCompatActivity {
         newEvent.setReminders(reminders);
         String id = "primary";
         newEvent = calendar.events().insert(id, newEvent).execute();
+        */
     }
 
     private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
@@ -301,5 +337,55 @@ public class MainActivity extends AppCompatActivity {
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
 
+    }
+
+    private void addEventToCalendar() throws IOException, GeneralSecurityException {
+        SimpleDateFormat isoParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.ENGLISH);
+        Date startDate;
+        Date endDate;
+        String startDateString;
+        String endDateString;
+        try {
+            startDate = isoParser.parse(finalData[1]);
+            endDate = isoParser.parse(finalData[2]);
+            startDateString = isoParser.format(startDate);
+            endDateString = isoParser.format(endDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            eventInfo.append("There was an error");
+            return;
+        }
+
+        eventInfo.append("Things are happening");
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        Calendar calendar = new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                .setApplicationName(APPLICATION_NAME)
+                .build();
+        Event newEvent = new Event();
+        newEvent.setSummary(finalData[0]);
+        if (finalData[3].length() > 0) {
+            newEvent.setLocation(finalData[3]);
+        }
+        if (finalData[4].length() > 0) {
+            newEvent.setLocation(finalData[4]);
+        }
+        DateTime startDateTime = new DateTime(startDateString);
+        DateTime endDateTime = new DateTime(endDateString);
+
+        TimeZone currentTimeZone = TimeZone.getDefault();
+        String timeZoneAsString = currentTimeZone.getDisplayName();
+        EventDateTime startEventDateTime = new EventDateTime();
+        startEventDateTime.setDateTime(startDateTime);
+        startEventDateTime.setTimeZone(timeZoneAsString);
+        newEvent.setStart(startEventDateTime);
+
+        EventDateTime endEventDateTime = new EventDateTime();
+        endEventDateTime.setDateTime(endDateTime);
+        endEventDateTime.setTimeZone(timeZoneAsString);
+        newEvent.setEnd(endEventDateTime);
+
+        String id = "primary";
+        newEvent = calendar.events().insert(id, newEvent).execute();
+        eventInfo.append("The event has been added to your Calendar!");
     }
 }
