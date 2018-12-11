@@ -32,6 +32,7 @@ import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+/*
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.json.JsonFactory;
@@ -49,8 +50,9 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.EventReminder;
-
-
+*/
+import android.provider.CalendarContract.Events;
+import android.provider.CalendarContract;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,15 +67,16 @@ import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.TimeZone;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
 
     static int REQUEST_CAPTURE = 1;
-    private static final String APPLICATION_NAME = "Google Calendar API";
+    /*private static final String APPLICATION_NAME = "Google Calendar API";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
     private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR);
-    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";*/
     //ImageView qrImage;
     Context context;
     Uri imageUri;
@@ -119,9 +122,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finalData = new String[5];
-                finalData[0] = "Event Name";
-                finalData[1] = "2018-12-09T10:00:00+1:00";
-                finalData[2] = "2018-12-09T11:00:00+1:00";
+                finalData[0] = "Sample Event";
+                finalData[1] = "2018-12-09T10:20:00+1:00";
+                finalData[2] = "2018-12-09T11:30:00+1:00";
+                finalData[3] = "PAR";
+                finalData[4] = "A neat event";
                 if (finalData != null) {
                     try {
                         addEventToCalendar();
@@ -327,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
         */
     }
 
-    private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+    /*private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
         InputStream in = MainActivity.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
@@ -337,9 +342,58 @@ public class MainActivity extends AppCompatActivity {
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
 
-    }
+    }*/
 
     private void addEventToCalendar() throws IOException, GeneralSecurityException {
+        if (finalData == null || finalData.length == 0) {
+            eventInfo.append("There is no event to add to the calendar");
+        }
+        Intent calendarIntent = new Intent(Intent.ACTION_INSERT);
+        calendarIntent.setData(Events.CONTENT_URI);
+        Calendar eventStart = Calendar.getInstance();
+        Calendar eventEnd = Calendar.getInstance();
+        eventInfo.append(finalData[1]);
+        char[] startArray = finalData[1].toCharArray();
+        char[] sub = Arrays.copyOfRange(startArray, 0, 4);
+        int startYear = Integer.parseInt(new String(sub));
+        sub = Arrays.copyOfRange(startArray, 5, 7);
+        int startMonth = Integer.parseInt(new String(sub));
+        sub = Arrays.copyOfRange(startArray, 8,10);
+        int startDay = Integer.parseInt(new String(sub));
+        sub = Arrays.copyOfRange(startArray, 11,13);
+        int startHour = Integer.parseInt(new String(sub));
+        sub = Arrays.copyOfRange(startArray, 14, 16);
+        int startMinute = Integer.parseInt(new String(sub));
+
+        char[] endArray = finalData[2].toCharArray();
+        sub = Arrays.copyOfRange(endArray, 0, 4);
+        int endYear = Integer.parseInt(new String(sub));
+        sub = Arrays.copyOfRange(endArray, 5, 7);
+        int endMonth = Integer.parseInt(new String(sub));
+        sub = Arrays.copyOfRange(endArray, 8,10);
+        int endDay = Integer.parseInt(new String(sub));
+        sub = Arrays.copyOfRange(endArray, 11,13);
+        int endHour = Integer.parseInt(new String(sub));
+        sub = Arrays.copyOfRange(endArray, 14, 16);
+        int endMinute = Integer.parseInt(new String(sub));
+
+        eventStart.set(startYear, startMonth - 1, startDay, startHour, startMinute);
+        eventEnd.set(endYear, endMonth - 1, endDay, endHour, endMinute);
+        calendarIntent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, eventStart.getTimeInMillis());
+        calendarIntent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, eventEnd.getTimeInMillis());
+
+        calendarIntent.putExtra(Events.TITLE, finalData[0]);
+        if (finalData[3] != null && finalData[3].length() > 0) {
+            calendarIntent.putExtra(Events.EVENT_LOCATION, finalData[3]);
+        }
+        if (finalData[4] != null && finalData[4].length() > 0) {
+            calendarIntent.putExtra(Events.DESCRIPTION, finalData[4]);
+        }
+
+        startActivity(calendarIntent);
+
+
+        /*
         SimpleDateFormat isoParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.ENGLISH);
         Date startDate;
         Date endDate;
@@ -386,6 +440,6 @@ public class MainActivity extends AppCompatActivity {
 
         String id = "primary";
         newEvent = calendar.events().insert(id, newEvent).execute();
-        eventInfo.append("The event has been added to your Calendar!");
+        eventInfo.append("The event has been added to your Calendar!");*/
     }
 }
