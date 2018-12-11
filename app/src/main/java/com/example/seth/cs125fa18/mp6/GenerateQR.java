@@ -150,7 +150,7 @@ public class GenerateQR extends AppCompatActivity {
                     for (String item : rawData) {
                         qrData = qrData + item + unit_separator;
                     }
-                    qrData = qrData.substring(4, qrData.length() - 2);
+                    qrData = qrData.substring(4, qrData.length() - 1);
 
                     Intent startDisplayQr = new Intent(GenerateQR.this, DisplayQR.class);
                     startDisplayQr.putExtra("eventDataKey", qrData);
