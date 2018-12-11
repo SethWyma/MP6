@@ -41,7 +41,6 @@ public class DisplayQR extends AppCompatActivity {
             }
             qrCodeDrawable = result;
             qrCode.setImageDrawable(qrCodeDrawable);
-
         }
     }
 

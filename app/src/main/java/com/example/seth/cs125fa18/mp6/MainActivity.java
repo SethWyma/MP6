@@ -71,9 +71,9 @@ public class MainActivity extends AppCompatActivity {
                 qrArrayData = contents.split(Character.toString((char) 31));
                 Vibrator scanSuccessVibration = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    scanSuccessVibration.vibrate(VibrationEffect.createOneShot(750, VibrationEffect.DEFAULT_AMPLITUDE));
+                    scanSuccessVibration.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE));
                 } else {
-                    scanSuccessVibration.vibrate(750);
+                    scanSuccessVibration.vibrate(200);
                 }
                 try {
                     friendlyText = qrDataDisplayBuilder(qrArrayData);

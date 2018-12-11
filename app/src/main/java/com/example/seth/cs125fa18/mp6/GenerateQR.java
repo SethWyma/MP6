@@ -126,7 +126,7 @@ public class GenerateQR extends AppCompatActivity {
                         Date start = formattedToDatesdf.parse(startDateTime);
                         Date end = formattedToDatesdf.parse(endDateTime);
                         if (start.after(end)) {
-                            badInputText += "\n End of event is after the start!";
+                            badInputText += "\n End of event is before the start!";
                         }
                     } catch (ParseException e) {
                         e.printStackTrace();
@@ -151,8 +151,6 @@ public class GenerateQR extends AppCompatActivity {
                         qrData = qrData + item + unit_separator;
                     }
                     qrData = qrData.substring(4, qrData.length() - 2);
-
-                    // Sample data: "Fun Party!&#@42018-12-07T17:30:00-06:00&#@42018-12-07T20:00:00-06:00&#@4123 Maple Ave.&#@4Enjoy time w/ friends at my house."
 
                     Intent startDisplayQr = new Intent(GenerateQR.this, DisplayQR.class);
                     startDisplayQr.putExtra("eventDataKey", qrData);

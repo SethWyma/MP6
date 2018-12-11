@@ -45,7 +45,7 @@ public class SuccessfulScan extends AppCompatActivity {
         });
     }
 
-    private void addEventToCalendar(String[] eventData) {
+    public void addEventToCalendar(String[] eventData) {
         Intent calendarIntent = new Intent(Intent.ACTION_INSERT);
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
         long startTime = 0;
