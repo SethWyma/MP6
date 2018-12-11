@@ -2,23 +2,18 @@ package com.example.seth.cs125fa18.mp6;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.Task;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class SuccessfulScan extends AppCompatActivity {
-    final int SIGN_IN = 17;
-    Button googleSignIn;
-    TextView accountName;
+
+    String[] qrData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,51 +22,53 @@ public class SuccessfulScan extends AppCompatActivity {
         setContentView(R.layout.successful_scan);
 
         TextView title = findViewById(R.id.title);
-        TextView firstDatetime = findViewById(R.id.firstDatetime);
-        TextView secondDatetime = findViewById(R.id.secondDatetime);
+        TextView datetimes = findViewById(R.id.datetimes);
         TextView location = findViewById(R.id.location);
         TextView description = findViewById(R.id.description);
         Button addToCalendar = findViewById(R.id.addToCalendar);
-        googleSignIn = findViewById(R.id.googleSignIn);
-        accountName = findViewById(R.id.accountName);
-        accountName.setVisibility(View.INVISIBLE);
 
         Bundle extras = getIntent().getExtras();
         String[] friendlyTextArray = (extras.getStringArray("friendly text"));
-        String[] qrData = extras.getStringArray("qr data");
+        qrData = extras.getStringArray("qr data");
 
         title.setText(friendlyTextArray[0]);
-        firstDatetime.setText(friendlyTextArray[1] + "\n" + friendlyTextArray[2]);
-        //secondDatetime.setText(friendlyTextArray[2]);
+        datetimes.setText(friendlyTextArray[1] + "\n" + friendlyTextArray[2]);
         location.setText(friendlyTextArray[3]);
         description.setText(friendlyTextArray[4]);
 
-        GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
-        final GoogleSignInClient signInClient = GoogleSignIn.getClient(this, options);
 
-        googleSignIn.setOnClickListener(new View.OnClickListener() {
+        addToCalendar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent googleSignInIntent = signInClient.getSignInIntent();
-                startActivityForResult(googleSignInIntent, SIGN_IN);
+                addEventToCalendar(qrData);
             }
         });
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SIGN_IN) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                GoogleSignInAccount userAccount = task.getResult(ApiException.class);
-                googleSignIn.setVisibility(View.INVISIBLE);
-                accountName.setText("Signed in as: " + userAccount.getDisplayName());
-                accountName.setVisibility(View.VISIBLE);
-            } catch (ApiException e) {
-                Log.w("oopsies", "signInResult:failed code=" + e.getStatusCode());
-            }
+    private void addEventToCalendar(String[] eventData) {
+        Intent calendarIntent = new Intent(Intent.ACTION_INSERT);
+        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+        long startTime = 0;
+        long endTime = 0;
+        try {
+            startTime = parser.parse(eventData[1]).getTime();
+            endTime = parser.parse(eventData[2]).getTime();
+        } catch (ParseException e) {
+            // This shouldn't happen
+            e.printStackTrace();
+            return;
         }
+        calendarIntent.setData(CalendarContract.Events.CONTENT_URI)
+                .putExtra(CalendarContract.Events.TITLE, eventData[0])
+                .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, startTime)
+                .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime);
+
+        if (eventData.length > 3) {
+            calendarIntent.putExtra(CalendarContract.Events.EVENT_LOCATION, eventData[3]);
+        }
+        if (eventData.length > 4) {
+            calendarIntent.putExtra(CalendarContract.Events.DESCRIPTION, eventData[4]);
+        }
+        startActivity(calendarIntent);
     }
 }

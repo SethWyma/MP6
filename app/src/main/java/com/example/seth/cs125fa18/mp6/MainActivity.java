@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.journeyapps.barcodescanner.CompoundBarcodeView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     IntentIntegrator qrScanner;
     String[] qrArrayData;
     String[] friendlyText;
-    final String ERROR_MESSAGE = "The code you scanned is not in the proper format.";
+    TextView badQrText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +36,10 @@ public class MainActivity extends AppCompatActivity {
 
         Button generateQR = findViewById(R.id.generateQR);
         Button scanQR = findViewById(R.id.scanQR);
+        badQrText = findViewById(R.id.badQrText);
         context = this.getApplicationContext();
+        badQrText.setVisibility(View.INVISIBLE);
+
 
         qrScanner = new IntentIntegrator(this);
 
@@ -79,12 +81,13 @@ public class MainActivity extends AppCompatActivity {
                     friendlyText = null;
                 }
                 if (friendlyText != null && friendlyText.length == 5) {
+                    badQrText.setVisibility(View.INVISIBLE);
                     Intent successfulScan = new Intent(MainActivity.this, SuccessfulScan.class);
                     successfulScan.putExtra("friendly text", friendlyText);
                     successfulScan.putExtra("qr data", qrArrayData);
                     startActivity(successfulScan);
                 } else {
-                    // Invalid QR Code Message
+                    badQrText.setVisibility(View.VISIBLE);
                     return;
                 }
             } else {
